@@ -78,51 +78,78 @@ body::after{
 .main-content{padding:80px 0.5rem 1rem;min-height:100vh;max-width:100%;margin:0 auto}
 @media(min-width:768px){.main-content{padding:80px 1rem 1rem}}
 
-/* ==================== 流动照片墙 ==================== */
+/* ==================== 2D 不规则流动墙 ==================== */
 .flow-wall{
-  position:relative;width:100%;height:calc(100vh - 100px);
-  overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
+  width:100%;height:calc(100vh - 100px);
+  overflow-y:auto;overflow-x:hidden;
   scroll-behavior:smooth;
-  display:flex;gap:1.2rem;padding:1rem 2rem;align-items:center;
   scrollbar-width:none;
+  display:flex;flex-direction:column;gap:1.5rem;
+  padding:1rem 0 4rem;
 }
 .flow-wall::-webkit-scrollbar{display:none}
 
 .flow-row{
-  display:flex;gap:1.2rem;flex-shrink:0;align-items:center;
+  display:flex;gap:1.2rem;flex-shrink:0;
+  padding:0 2rem;align-items:center;
+  position:relative;
 }
-.flow-row.slow{animation:flowLeft 120s linear infinite}
-.flow-row.med{animation:flowLeft 90s linear infinite}
-.flow-row.fast{animation:flowLeft 60s linear infinite}
+/* 各行不同速度和方向 */
+.flow-row:nth-child(1){animation:driftLeft 80s linear infinite}
+.flow-row:nth-child(2){animation:driftRight 65s linear infinite}
+.flow-row:nth-child(3){animation:driftLeft 100s linear infinite}
+.flow-row:nth-child(4){animation:driftRight 55s linear infinite}
+.flow-row:nth-child(5){animation:driftLeft 70s linear infinite}
+.flow-row:nth-child(6){animation:driftRight 90s linear infinite}
 .flow-wall:hover .flow-row{animation-play-state:paused}
 
-@keyframes flowLeft{
+@keyframes driftLeft{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
+@keyframes driftRight{
+  from{transform:translateX(-50%)}
+  to{transform:translateX(0)}
+}
 
 .flow-card{
-  flex-shrink:0;scroll-snap-align:center;
-  height:55vh;min-height:300px;max-height:600px;
+  flex-shrink:0;
+  height:38vh;min-height:200px;max-height:450px;
   border-radius:var(--radius);overflow:hidden;cursor:pointer;
-  position:relative;transition:all var(--spring-bouncy);
+  position:relative;
   background:var(--surface);
+  transition:transform var(--spring-bouncy),box-shadow var(--spring-soft);
 }
+/* 每张照片独立微浮动 */
+.flow-row:nth-child(odd) .flow-card:nth-child(even){animation:floatUp 6s ease-in-out infinite}
+.flow-row:nth-child(even) .flow-card:nth-child(odd){animation:floatDown 7s ease-in-out infinite}
+.flow-row:nth-child(odd) .flow-card:nth-child(3n){animation:floatUp 8s ease-in-out 2s infinite}
+.flow-row:nth-child(even) .flow-card:nth-child(4n){animation:floatDown 5s ease-in-out 3s infinite}
+
+@keyframes floatUp{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+@keyframes floatDown{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(8px)}
+}
+
 .flow-card img,.flow-card video{
   height:100%;width:auto;display:block;
   border-radius:var(--radius);
-  transition:transform 0.8s var(--spring-soft), filter 0.8s var(--spring-soft);
   filter:brightness(0.85);
+  transition:transform 0.8s var(--spring-soft),filter 0.8s var(--spring-soft);
 }
-.flow-card video{object-fit:cover;min-width:280px}
 .flow-card img.loaded{filter:brightness(0.9)}
+.flow-card video{object-fit:cover;min-width:220px}
+
 .flow-card:hover{
-  transform:translateY(-6px) scale(1.03);
-  z-index:10;box-shadow:0 30px 80px rgba(0,0,0,0.7);
+  transform:translateY(-10px) scale(1.06) !important;
+  z-index:100;box-shadow:0 30px 80px rgba(0,0,0,0.8),0 0 60px rgba(255,255,255,0.05);
+  animation:none !important;
 }
-.flow-card:hover img,.flow-card:hover video{filter:brightness(1.08) saturate(1.15)}
+.flow-card:hover img,.flow-card:hover video{filter:brightness(1.1) saturate(1.2)}
 
 .flow-card .card-overlay{
   position:absolute;inset:0;

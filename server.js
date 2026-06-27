@@ -35,14 +35,17 @@ async function start() {
     console.log(`   💻 本机: http://localhost:${PORT}`);
     ips.forEach(ip => console.log(`   📱 局域网: http://${ip}:${PORT}`));
 
-    // 本地启动时自动开公网隧道（部署到 Render 后用自己的域名）
-    if (!process.env.RENDER && !process.env.RAILWAY_STATIC_URL) {
+    // 本地隧道（部署到平台后自动跳过）
+    if (!process.env.RENDER && !process.env.RAILWAY_STATIC_URL && !process.env.GLITCH && !process.env.PROJECT_DOMAIN) {
       try {
         const localtunnel = require('localtunnel');
-        const tunnel = await localtunnel({ port: PORT });
-        console.log(`   🌐 临时公网: ${tunnel.url}`);
+        const sub = 'photowall-' + require('crypto').randomBytes(3).toString('hex');
+        const tunnel = await localtunnel({ port: PORT, subdomain: sub });
+        console.log(`   🌐 公网: ${tunnel.url}`);
+        console.log(`   ⚠️  电脑关机后地址会变，重启服务即可`);
       } catch(e) {
-        console.log(`   ⚠️  公网隧道启动失败，局域网仍可用`);
+        console.log(`   🌐 公网隧道失败: ${e.message}`);
+        console.log(`   💡 局域网地址手机仍可访问`);
       }
     }
 

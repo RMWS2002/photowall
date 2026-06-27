@@ -28,7 +28,10 @@ const LoginPage = {
       </p>
     </div>
   </div>`,
-  data() { return { isLogin:true,loading:false,error:'',ok:'',f:{username:'',email:'',password:'',invite_code:''} }; },
+  data() {
+    const h = window.location.hash;
+    return { isLogin:!h.includes('register'),loading:false,error:'',ok:'',f:{username:'',email:'',password:'',invite_code:''} };
+  },
   methods: {
     sw(){this.isLogin=!this.isLogin;this.error='';this.ok=''},
     async submit(){
@@ -38,8 +41,11 @@ const LoginPage = {
       if(!this.isLogin&&!this.f.invite_code){this.error='需要邀请码';return}
       this.loading=true;
       try{
-        if(this.isLogin){const d=await API.login(this.f);API.setToken(d.token);window.dispatchEvent(new CustomEvent('auth-changed'));this.$router.push('/')}
-        else{const d=await API.register(this.f);this.ok=d.msg;this.f={username:'',email:'',password:'',invite_code:''}}
+        if(this.isLogin){
+          const d=await API.login(this.f);
+          API.setToken(d.token);
+          window.location.hash = '#/';
+        }else{const d=await API.register(this.f);this.ok=d.msg;this.f={username:'',email:'',password:'',invite_code:''}}
       }catch(e){this.error=e.message}
       this.loading=false;
     }
